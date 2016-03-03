@@ -1,0 +1,15 @@
+<div class="input-group bootstrap-touchspin">
+  <span class="input-group-btn">
+    <button class="btn btn-default bootstrap-touchspin-down" type="button" onmouseup={{action 'onMouseUp' -1}} onmousedown={{action 'onMouseDown' -1}}>{{buttonDownText}}</button>
+  </span>
+  {{#if prefix}}
+    <span class="input-group-addon bootstrap-touchspin-prefix">{{prefix}}</span>
+  {{/if}}
+  <input style="display: block;" class="form-control" id="demo1" value={{value}} name="demo1" type="text" onwheel={{action 'onWheel'}}>
+  {{#if postfix}}
+    <span class="input-group-addon bootstrap-touchspin-postfix">{{postfix}}</span>
+  {{/if}}
+  <span class="input-group-btn">
+    <button class="btn btn-default bootstrap-touchspin-down" type="button" onmouseup={{action 'onMouseUp' 1}} onmousedown={{action 'onMouseDown' 1}}>{{buttonUpText}}</button>
+  </span>
+</div>

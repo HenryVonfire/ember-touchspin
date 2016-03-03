@@ -1,6 +1,6 @@
 # Ember-touchspin
 
-This README outlines the details of collaborating on this Ember addon.
+Ember version of [Bootstrap TouchSpin](https://github.com/istvan-ujjmeszaros/bootstrap-touchspin).
 
 ## Installation
 
