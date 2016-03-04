@@ -30,6 +30,7 @@ export default Ember.Component.extend({
            buttonUpText: '+',
 
 //******************************************************************************
+  _keyPressed: false,
   didReceiveAttrs(){
     this.set('value', this.get('initval'));
   },
@@ -56,6 +57,45 @@ export default Ember.Component.extend({
       return value;
     }
   },
+  keyDown(e){
+    e.preventDefault();
+    this.set('_keyPressed',true);
+    let operation = false;
+    if(e.which === 38){
+      operation = 1; // Spinner Up
+    }
+    if(e.which === 40){
+      operation = -1; // Spinner Down
+    }
+    if(operation){
+      Ember.run.later(() => {
+        if(this.get('_keyPressed') && !this.get('_isKeyStillPressed')){
+          this.set('_isKeyStillPressed', true);
+          this._runSpinner(operation);
+        } else {
+          this._changeValue(operation);
+        }
+      }, 100);
+    }
+  },
+  keyUp(e){
+    this.set('_keyPressed',false);
+    let operation = false;
+    if(e.which === 38){
+      operation = 1; // Spinner Up
+    }
+    if(e.which === 40){
+      operation = -1; // Spinner Down
+    }
+    if(operation){
+      Ember.run.later(() => {
+        if(!this.get('_keyPressed')){
+          this.set('_isKeyStillPressed', false);
+          this._stopSpinner();
+        }
+      }, 100);
+    }
+  },
   _changeValue(operation){
     const value = this._getFloat('value');
     const decimals = this._getInt('decimals');
@@ -65,34 +105,51 @@ export default Ember.Component.extend({
       this.set('value',this._checkValue(value, operation).toFixed(decimals));
     }
   },
+  _runSpinner(operation){
+    const boostStep =  this.get('boostStep');
+    let booster = this.get('booster');
+    let round = 0;
+    let stepInterval = this.get('stepInterval');
+
+    const myFunction = () => {
+        clearInterval(this.get('_intervalId'));
+        this._changeValue(operation);
+        if(booster){
+          round = round + 1;
+          if(round === boostStep){
+            stepInterval = stepInterval <= 0 ? 0:stepInterval - 10;
+            round = 0;
+          }
+        }
+        this.set('_intervalId', setInterval(myFunction, stepInterval));
+    };
+
+    Ember.run.later(() => {
+      this.set('_intervalId', setInterval(myFunction, stepInterval));
+    }, this.get('stepIntervalDelay'));
+  },
+  _stopSpinner(){
+    clearInterval(this._intervalId);
+  },
   actions:{
     onMouseDown(operation){
-
-      const boostStep =  this.get('boostStep');
-      let booster = this.get('booster');
-      let round = 0;
-      let stepInterval = this.get('stepInterval');
-
-      const myFunction = () => {
-          clearInterval(this.get('_intervalId'));
-          this._changeValue(operation);
-          if(booster){
-            round = round + 1;
-            if(round === boostStep){
-              stepInterval = stepInterval <= 0 ? 0:stepInterval - 10;
-              round = 0;
-            }
-          }
-          this.set('_intervalId', setInterval(myFunction, stepInterval));
-      };
-
+      this.set('_mouseClicked',true);
       Ember.run.later(() => {
-        this.set('_intervalId', setInterval(myFunction, stepInterval));
-      }, this.get('stepIntervalDelay'));
+        if(this.get('_mouseClicked')){
+          this._runSpinner(operation);
+        } else {
+          this._changeValue(operation);
+        }
+      }, 250);
     },
 
-    onMouseUp(button){
-      clearInterval(this._intervalId);
+    onMouseUp(){
+      this.set('_mouseClicked',false);
+      Ember.run.later(() => {
+        if(!this.get('_mouseClicked')){
+          this._stopSpinner();
+        }
+      }, 250);
     },
 
     onWheel(e){
