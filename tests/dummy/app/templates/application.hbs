@@ -1,8 +1,16 @@
 <h2 id="title">Welcome to Ember</h2>
 
-{{touch-spin
-  initval=1
-  prefix="hey"
+{{#touch-spin
+  initVal=inputValue
   step=1
   decimals=0
-  postfix="%"}}
+  onWheel=(action "onWheel")
+  as |touchSpin|}}
+    <button type="button" onmouseup={{action touchSpin.onMouseUpDecrement}} onmousedown={{action touchSpin.onMouseDownDecrement}}>-</button>
+    <span>hey</span>
+    <input style="display: inline-block;" value={{touchSpin.value}} type="text" onwheel={{action touchSpin.onWheel}} oninput={{action "onChanged" value="target.value"}}>
+    <span>%</span>
+    <button type="button" onmouseup={{action touchSpin.onMouseUpIncrement}} onmousedown={{action touchSpin.onMouseDownIncrement}}>+</button>
+  {{/touch-spin}}
+
+input value: {{inputValue}}

@@ -1,4 +1,4 @@
-<span class="input-group-btn">
+<!--<span class="input-group-btn">
   <button class="btn btn-default bootstrap-touchspin-down" type="button" onmouseup={{action 'onMouseUp'}} onmousedown={{action 'onMouseDown' -1}}>{{buttonDownText}}</button>
 </span>
 {{#if prefix}}
@@ -10,4 +10,13 @@
 {{/if}}
 <span class="input-group-btn">
   <button class="btn btn-default bootstrap-touchspin-down" type="button" onmouseup={{action 'onMouseUp'}} onmousedown={{action 'onMouseDown' 1}}>{{buttonUpText}}</button>
-</span>
+</span>-->
+
+
+{{yield (hash
+  onMouseDownDecrement=(action "onMouseDown" -1)
+  onMouseUpDecrement=(action "onMouseUp")
+  value=value
+  onMouseDownIncrement=(action "onMouseDown" 1)
+  onMouseUpIncrement=(action "onMouseUp")
+  onWheel=(action "onWheel"))}}

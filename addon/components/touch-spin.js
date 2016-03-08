@@ -5,7 +5,7 @@ export default Ember.Component.extend({
   layout,
 //***************************** API parameters *********************************
 
-                initval: '', // Applied when no explicit value is set on the input with the value attribute. Empty string means that the value remains empty on initialization.
+                initVal: '', // Applied when no explicit value is set on the input with the value attribute. Empty string means that the value remains empty on initialization.
                     min: 0, // Minimum value.
                     max: 100, // Maximum value.
                    step: 1, // Incremental/decremental step on up/down change.
@@ -31,14 +31,37 @@ export default Ember.Component.extend({
 
 //******************************************************************************
   _keyPressed: false,
-  didReceiveAttrs(){
-    this.set('value', this.get('initval'));
-  },
   _getFloat(property){
     return parseFloat(this.get(property));
   },
   _getInt(property){
     return parseInt(this.get(property));
+  },
+  value:Ember.computed('initVal',{
+    get(key,value){
+      const initVal = this.get('initVal');
+      const _initVal = this.get('_initVal');
+      if(!_initVal || _initVal !== initVal){
+        this.set('_initVal', initVal);
+        this.set('value',initVal);
+        return initVal;
+      }
+      return value;
+    },
+    set(key,value){
+      return value;
+    }
+  }),
+  _changeValue(operation){
+    const value = this._getFloat('value');
+    const decimals = this._getInt('decimals');
+    if(!decimals || decimals <= 0){
+      this.set('value',this._checkValue(value, operation));
+    } else {
+      this.set('value',this._checkValue(value, operation).toFixed(decimals));
+    }
+    this.set('initVal', this.get('value'));
+
   },
   _checkValue(value, operation){
     const max = this._getFloat('max');
@@ -58,7 +81,6 @@ export default Ember.Component.extend({
     }
   },
   keyDown(e){
-    e.preventDefault();
     this.set('_keyPressed',true);
     let operation = false;
     if(e.which === 38){
@@ -68,6 +90,7 @@ export default Ember.Component.extend({
       operation = -1; // Spinner Down
     }
     if(operation){
+      e.preventDefault();
       Ember.run.later(() => {
         if(this.get('_keyPressed') && !this.get('_isKeyStillPressed')){
           this.set('_isKeyStillPressed', true);
@@ -94,15 +117,6 @@ export default Ember.Component.extend({
           this._stopSpinner();
         }
       }, 100);
-    }
-  },
-  _changeValue(operation){
-    const value = this._getFloat('value');
-    const decimals = this._getInt('decimals');
-    if(!decimals || decimals <= 0){
-      this.set('value',this._checkValue(value, operation));
-    } else {
-      this.set('value',this._checkValue(value, operation).toFixed(decimals));
     }
   },
   _runSpinner(operation){
@@ -154,7 +168,7 @@ export default Ember.Component.extend({
 
     onWheel(e){
       if(this.get('mouseWheel')){
-        if(e.wheelDelta < 0) {
+        if(e.deltaY > 0) {
           //scroll down
           this._changeValue(-1);
         }else {
